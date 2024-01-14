@@ -19,8 +19,10 @@ namespace blog_bakend.Models
         public List<byte[]>? BlogImages { get; set; }
 
         [BsonElement("Author")]
+        public string? Author { get; set; }
 
-        public string? Author { get; set; }  
-
+        [BsonElement("CreatedDate")]
+        [BsonDateTimeOptions(Kind = DateTimeKind.Utc)]
+        public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
     }
 }

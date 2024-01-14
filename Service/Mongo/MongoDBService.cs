@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using MongoDB.Bson;
+using blog_bakend.DTOs.RequestDtos;
 
 namespace blog_bakend.Service.Mongo
 {
@@ -15,18 +16,83 @@ namespace blog_bakend.Service.Mongo
 
         }
 
-        public async Task<BlogPost> CreateAsync(BlogPost blogPost) 
+        public async Task<BlogPost> CreateAsync(CreateBlogInputDto blogPostDto) 
         {
             try
             {
-                // Just Return Entity
-                await _blogPostCollection.InsertOneAsync(blogPost);
+                List<byte[]> blogImagesList = new List<byte[]>();
+                var blogPost = new BlogPost
+                {
+                    Title = blogPostDto.BlogTitle,
+                    Description = blogPostDto.BlogDescription,
+                    Author = blogPostDto.BlogAuthor,
+                    CreatedDate = DateTime.Now,
+                    BlogImages = blogImagesList
+                };
+
+                // Check there are any image
+
+                if (blogPostDto.BlogImageDtos != null) 
+                {
+                    foreach (var blogImageDto in blogPostDto.BlogImageDtos) 
+                    {
+                        // Convert IFormFile to byte array
+                        using (var stream = new MemoryStream())
+
+                        {
+                            blogImageDto.FormFile?.CopyTo(stream);
+                            var imageData = stream.ToArray();
+                            blogImagesList.Add(imageData);
+                        }
+                    }
+                }
+
+               await _blogPostCollection.InsertOneAsync(blogPost);
+
+               return blogPost; 
+          
             }catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
                 throw ex;
             }
-            return blogPost;
         }
+
+
+        
+
+
+
+        public async Task<List<BlogPost>> GetAllAsync() 
+        {
+            try
+            {
+                return await _blogPostCollection.Find(new BsonDocument()).ToListAsync();
+
+            }
+            catch (Exception ex) 
+            {
+                Console.WriteLine(ex.Message);
+                throw ex;
+            }
+        }
+
+        public async Task<BlogPost> GetBlogById(string id)
+        {
+            try 
+            {
+                var blog = await _blogPostCollection.Find(Builders<BlogPost>.Filter.Eq("Id", id)).FirstOrDefaultAsync();
+
+                return blog;
+                
+            }catch (Exception ex) 
+            {
+                Console.WriteLine(ex.Message);
+                throw ex;
+            }
+        }
+
+
+
     }
 }
