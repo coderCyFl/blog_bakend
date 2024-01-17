@@ -7,8 +7,8 @@ namespace blog_bakend.Service.Mongo
     {
         Task<BlogPost> CreateAsync(CreateBlogInputDto blogPostDto);
         Task<List<BlogPost>> GetAllAsync();
-
         Task<BlogPost> GetBlogById(string id);
-
+        Task DeleteAsync(string id);
+        Task<BlogPost> UpdateBlogPostById(UpdateBlogInputDto inputDto);
     }
 }

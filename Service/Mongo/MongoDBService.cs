@@ -3,6 +3,8 @@ using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using MongoDB.Bson;
 using blog_bakend.DTOs.RequestDtos;
+using blog_bakend.DTOs.OutputDtos;
+using Microsoft.AspNetCore.Components.Forms;
 
 namespace blog_bakend.Service.Mongo
 {
@@ -32,6 +34,7 @@ namespace blog_bakend.Service.Mongo
 
                 // Check there are any image
 
+                #region Insert Image
                 if (blogPostDto.BlogImageDtos != null) 
                 {
                     foreach (var blogImageDto in blogPostDto.BlogImageDtos) 
@@ -46,22 +49,18 @@ namespace blog_bakend.Service.Mongo
                         }
                     }
                 }
+                #endregion
 
-               await _blogPostCollection.InsertOneAsync(blogPost);
+                await _blogPostCollection.InsertOneAsync(blogPost);
 
                return blogPost; 
           
             }catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
-                throw ex;
+                throw ;
             }
         }
-
-
-        
-
-
 
         public async Task<List<BlogPost>> GetAllAsync() 
         {
@@ -88,11 +87,31 @@ namespace blog_bakend.Service.Mongo
             }catch (Exception ex) 
             {
                 Console.WriteLine(ex.Message);
-                throw ex;
+                throw ;
             }
         }
 
+        public async Task<BlogPost> UpdateBlogPostById (UpdateBlogInputDto inputDto)
+        
+        {
+            FilterDefinition<BlogPost> filter = Builders<BlogPost>.Filter.Eq("Id", inputDto?.Id); // Assuming "Id" is the MongoDB Object Id field
 
+            var updateDefinitionBuilder = Builders<BlogPost>.Update;
+            var updateDefinitions = new List<UpdateDefinition<BlogPost>>();
 
+            var updatedBlogPost = await _blogPostCollection
+            .Find(filter)
+            .Project(b => new BlogPost { Id = b.Id, Title = b.Title, Description = b.Description })
+            .FirstOrDefaultAsync();
+
+            return updatedBlogPost;
+
+        }
+        public async Task DeleteAsync(string id) 
+        {
+            FilterDefinition<BlogPost> filter = Builders<BlogPost>.Filter.Eq("Id", id);
+            await _blogPostCollection.DeleteOneAsync(filter);
+            return;
+        }
     }
 }

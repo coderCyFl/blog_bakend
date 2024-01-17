@@ -44,7 +44,7 @@ namespace blog_bakend.Controllers
 
         [HttpGet]
         [Route("GetBlog/{id}")]
-        public async Task<BlogpostOutputDto> GetSingleBlogPost(string id) 
+        public async Task<BlogpostOutputDto> GetSingleBlogPost (string id) 
         {
             var singleBlog = await _mongoDBService.GetBlogById(id);
 
@@ -52,5 +52,26 @@ namespace blog_bakend.Controllers
 
         }
 
+        // Temporary not handle Imgae Update 20240117
+        [HttpPut]
+        [Route("UpdateBlog/{id}")]
+        public async Task<BlogpostOutputDto> UpdateBlogPost (UpdateBlogInputDto updateInputDto) 
+        {
+            var result = await _mongoDBService.UpdateBlogPostById(updateInputDto);
+
+            return _mapper.Map<BlogpostOutputDto>(result);
+        }
+
+
+        [HttpDelete]
+        [Route("DeleteBlog/{id}")]
+
+        public async Task<IActionResult> DeleteBlogPost (string id) 
+        {
+            
+            await _mongoDBService.DeleteAsync(id);
+
+            return Ok("Delete success");
+        }
     }
 }
