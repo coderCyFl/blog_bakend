@@ -11,5 +11,7 @@
         public string BlogAuthorName { get; set;} 
 
         public List<Byte[]>? BlogImages { get; set;}
+
+        public DateTime BlogPostCreatedDate { get; set;}
     }
 }
